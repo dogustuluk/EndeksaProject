@@ -14,12 +14,12 @@ namespace Endeksa.Controllers
     {
         [HttpGet]
         //Authorize
-        [SwaggerOperation(
-            Summary = "Get User IP and location",
-            Description = "Get User and location by accessing an external API",
-            OperationId = "GetUserAndLocation",
-            Tags = new[] {"IP"}
-            )]
+        //[SwaggerOperation(
+        //    Summary = "Get User IP and location",
+        //    Description = "Get User and location by accessing an external API",
+        //    OperationId = "GetUserAndLocation",
+        //    Tags = new[] {"IP"}
+        //    )]
         public ActionResult<UserLocation> GetIP()
         {
             //kullanıcının ip adresi alınır.
