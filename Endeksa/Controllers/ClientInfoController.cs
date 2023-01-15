@@ -1,4 +1,5 @@
 ﻿using Endeksa.Models;
+using Endeksa.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -12,7 +13,17 @@ namespace Endeksa.Controllers
     [ApiController]
     public class ClientInfoController : ControllerBase
     {
+        private readonly RabbitMQClientService _rabbitmqClientService;
+        private readonly RabbitMQPublisher _rabbitMQPublisher;
+
+        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher)
+        {
+            _rabbitmqClientService = rabbitmqClientService;
+            _rabbitMQPublisher = rabbitMQPublisher;
+        }
+
         [HttpGet]
+        /*swagger error
         //Authorize
         //[SwaggerOperation(
         //    Summary = "Get User IP and location",
@@ -20,13 +31,17 @@ namespace Endeksa.Controllers
         //    OperationId = "GetUserAndLocation",
         //    Tags = new[] {"IP"}
         //    )]
+        */
         public ActionResult<UserLocation> GetIP()
         {
+            // _rabbitmqClientService.Connect();
+            
             //kullanıcının ip adresi alınır.
             string ip = GetUserIP();
             //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
             string location = GetLocation(ip);
 
+            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip });
             return Ok(new UserLocation { IP = ip, Location = location });
         }
         /// <summary>

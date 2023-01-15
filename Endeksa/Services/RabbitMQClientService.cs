@@ -4,6 +4,9 @@ using System;
 
 namespace Endeksa.Services
 {
+    //background servisimiz ilgili kuyruğu dinleyip dataları alacak.consumer
+    //
+    //
     public class RabbitMQClientService : IDisposable
     {
         private readonly ConnectionFactory _connectionFactory;
@@ -13,7 +16,7 @@ namespace Endeksa.Services
         public static string RoutingIPAddress = "ip-route-detector";
         public static string QueueName = "queue-ip-detector";
         private readonly ILogger _logger;
-        public RabbitMQClientService(ConnectionFactory connectionFactory, ILogger logger)
+        public RabbitMQClientService(ConnectionFactory connectionFactory, ILogger<RabbitMQClientService> logger)
         {
             _connectionFactory = connectionFactory;
             _logger = logger;
