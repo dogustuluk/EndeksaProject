@@ -1,5 +1,6 @@
 ﻿using Endeksa.Models;
 using Endeksa.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -23,15 +24,15 @@ namespace Endeksa.Controllers
         }
 
         [HttpGet]
-        /*swagger error
-        //Authorize
+        
+        //[Authorize]
         //[SwaggerOperation(
         //    Summary = "Get User IP and location",
         //    Description = "Get User and location by accessing an external API",
         //    OperationId = "GetUserAndLocation",
         //    Tags = new[] {"IP"}
         //    )]
-        */
+        
         public ActionResult<UserLocation> GetIP()
         {
             // _rabbitmqClientService.Connect();
@@ -41,7 +42,7 @@ namespace Endeksa.Controllers
             //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
             string location = GetLocation(ip);
 
-            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip });
+            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
             return Ok(new UserLocation { IP = ip, Location = location });
         }
         /// <summary>
@@ -54,7 +55,7 @@ namespace Endeksa.Controllers
             try
             {
                 //IP adresi için api çağrısı yapılır.
-                string apiUrl = "http://api.ipstack.com/check?access_key=403961d7a38018e6c9392289a30bd249\r\n";
+                string apiUrl = "http://api.ipstack.com/check?access_key=7224d0a4e08f10c5fe9401c8b7c5a947\r\n";
                 var json = new WebClient().DownloadString( apiUrl );
                 var data = JObject.Parse( json );
 
@@ -79,7 +80,7 @@ namespace Endeksa.Controllers
             try
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
-                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=403961d7a38018e6c9392289a30bd249\r\n";
+                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=7224d0a4e08f10c5fe9401c8b7c5a947\r\n";
                 var json = new WebClient().DownloadString( apiUrl );
                 var data = JObject.Parse( json );
 

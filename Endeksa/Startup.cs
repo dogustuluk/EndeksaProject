@@ -1,3 +1,4 @@
+using Endeksa.BackgroundServices;
 using Endeksa.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -40,6 +41,7 @@ namespace Endeksa
 
             services.AddSingleton<RabbitMQClientService>();
             services.AddSingleton<RabbitMQPublisher>();
+            services.AddHostedService<IPDetectorBackgroundService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
