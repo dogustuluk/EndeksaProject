@@ -27,7 +27,7 @@ namespace Endeksa.BackgroundServices
         {
             _channel = _rabbitMQClientService.Connect();
             _channel.BasicQos(0, 1, false);
-
+           
             return base.StartAsync(cancellationToken);
         }
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,7 +37,7 @@ namespace Endeksa.BackgroundServices
             consumer.Received += Consumer_Received;
 
             return Task.CompletedTask;
-        }
+        }                                                       
 
         private Task Consumer_Received(object sender, BasicDeliverEventArgs @event)
         {
@@ -50,6 +50,7 @@ namespace Endeksa.BackgroundServices
                 _channel.BasicAck(@event.DeliveryTag, false);
 
                 _logger.LogInformation($"işlem tamamlandı. IP:{ip} - City:{city}");
+                //redis
             }
             catch (Exception ex)
             {

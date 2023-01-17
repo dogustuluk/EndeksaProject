@@ -30,19 +30,11 @@ namespace Endeksa
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(serviceProvider => new ConnectionFactory { Uri = new Uri(Configuration.GetConnectionString("RabbitMQ")), DispatchConsumersAsync= true });
-            //services.AddSingleton<IConnection>(f =>
-            //{
-            //    var factory = new ConnectionFactory()
-            //    {
-            //        Uri = new Uri("amqps://smgjbehw:i4XFRJLJK3T36iernMMQ0LgPBReT5UPA@sparrow.rmq.cloudamqp.com/smgjbehw")
-            //    };
-            //    return factory.CreateConnection();
-            //});
-
+       
             services.AddSingleton<RabbitMQClientService>();
             services.AddSingleton<RabbitMQPublisher>();
             services.AddHostedService<IPDetectorBackgroundService>();
-
+            services.AddSingleton<RedisService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -51,7 +43,7 @@ namespace Endeksa
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RedisService redisService)
         {
             if (env.IsDevelopment())
             {
@@ -65,6 +57,8 @@ namespace Endeksa
             app.UseRouting();
 
             app.UseAuthorization();
+
+            redisService.Connect();
 
             app.UseEndpoints(endpoints =>
             {
