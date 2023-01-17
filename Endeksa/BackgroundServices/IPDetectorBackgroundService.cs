@@ -16,11 +16,13 @@ namespace Endeksa.BackgroundServices
     {
         private readonly RabbitMQClientService _rabbitMQClientService;
         private readonly ILogger<IPDetectorBackgroundService> _logger;
-        private IModel _channel; 
-        public IPDetectorBackgroundService(ILogger<IPDetectorBackgroundService> logger, RabbitMQClientService rabbitMQClientService)
+        private IModel _channel;
+        private readonly RedisService _redisService;
+        public IPDetectorBackgroundService(ILogger<IPDetectorBackgroundService> logger, RabbitMQClientService rabbitMQClientService, RedisService redisService)
         {
             _logger = logger;
             _rabbitMQClientService = rabbitMQClientService;
+           _redisService = redisService;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -41,7 +43,7 @@ namespace Endeksa.BackgroundServices
 
         private Task Consumer_Received(object sender, BasicDeliverEventArgs @event)
         {
-            Task.Delay(5000).Wait();
+            //Task.Delay(5000).Wait();
             try
             {
                 var data = System.Text.Json.JsonSerializer.Deserialize<UserIPDetectedEvent>(Encoding.UTF8.GetString(@event.Body.ToArray()));
@@ -51,6 +53,9 @@ namespace Endeksa.BackgroundServices
 
                 _logger.LogInformation($"işlem tamamlandı. IP:{ip} - City:{city}");
                 //redis
+              //  var expiryTime = DateTimeOffset.Now.AddSeconds(30);
+                //_redisService.Connect();
+                _redisService.SetData<string>("adres", ip);
             }
             catch (Exception ex)
             {

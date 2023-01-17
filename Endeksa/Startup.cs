@@ -29,12 +29,15 @@ namespace Endeksa
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<RedisService>();
+
             services.AddSingleton(serviceProvider => new ConnectionFactory { Uri = new Uri(Configuration.GetConnectionString("RabbitMQ")), DispatchConsumersAsync= true });
        
             services.AddSingleton<RabbitMQClientService>();
             services.AddSingleton<RabbitMQPublisher>();
             services.AddHostedService<IPDetectorBackgroundService>();
-            services.AddSingleton<RedisService>();
+           // services.AddSingleton<IRedisService,RedisService>();
+           // services.AddStackExchangeRedisCache<RedisService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
