@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
 using System.Text.Json;
+using System.Threading;
 
 namespace Endeksa.Services
 {
@@ -31,11 +32,10 @@ namespace Endeksa.Services
            // _redis = ConnectionMultiplexer.Connect("localhost:6379");
             _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             db = _redis.GetDatabase();
-            _logger.LogInformation("redis ile bağlantı kuruldu.");
+            _logger.LogInformation("redis ile bağlantı kuruldu. thread:"+ Thread.CurrentThread.ManagedThreadId);
         }
         public IDatabase GetDb(int db)
         {
-
             return _redis.GetDatabase(db);
         }
 
@@ -44,6 +44,11 @@ namespace Endeksa.Services
             var value = db.StringGet(ip);
             throw new NotImplementedException();
         }
+        public string GetIp(string ip)
+        {
+            var value = db.StringGet(ip);
+            return value;
+        }
 
         public bool SetData<T>(string key, T value)
         {
@@ -51,12 +56,12 @@ namespace Endeksa.Services
             return db.HashSet(hashKey, key, JsonSerializer.Serialize(value));
             //return db.StringSet(key, JsonSerializer.Serialize(value));
         }
-        public bool isKeyExist(string hashkey)
+        public bool isKeyExist(string hashkey,string value)
         {
             //var data = db.StringGet(value);
             if (db.KeyExists(hashKey))
             {
-                _logger.LogInformation($"data cache içerisinde bulunmaktadır");
+                _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
                 return true;
             }
             return false;

@@ -51,7 +51,7 @@ namespace Endeksa.BackgroundServices
                 var city = data.City;
                 _channel.BasicAck(@event.DeliveryTag, false);
 
-                _logger.LogInformation($"işlem tamamlandı. IP:{ip} - City:{city}");
+                _logger.LogInformation($"işlem tamamlandı. IP:{ip} - City:{city} - thread:{Thread.CurrentThread.ManagedThreadId}");
                 //redis
               //  var expiryTime = DateTimeOffset.Now.AddSeconds(30);
                 //_redisService.Connect();

@@ -5,31 +5,51 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Endeksa.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ClientInfoController : ControllerBase
     {
         private readonly RabbitMQClientService _rabbitmqClientService;
         private readonly RabbitMQPublisher _rabbitMQPublisher;
         private readonly RedisService _redisService;
-        //private readonly IDatabase _cache;
+       // private readonly IDatabase _cache;
         private readonly ILogger<ClientInfoController> _logger;
         public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher, RedisService redisService, ILogger<ClientInfoController> logger)
         {
             _rabbitmqClientService = rabbitmqClientService;
             _rabbitMQPublisher = rabbitMQPublisher;
-            // _cache = _redisService.GetDb(1);
+           //  _cache = _redisService.GetDb(1);
             _redisService = redisService;
-           _logger = logger;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public ActionResult<UserLocation> CheckIp()
+        {
+            string ip = GetUserIP();
+            string location = GetLocation(ip);
+
+            if (_redisService.db.HashExists(RedisService.IpKey,ip))
+            {
+                _logger.LogInformation($"ip adresi rediste var:{ip}");
+            }
+            else
+            {
+                _logger.LogInformation($"ip adresi rediste yok:{ip}");
+            }
+
+            return Ok(new UserLocation { IP = ip, Location = location });
         }
 
         [HttpGet]
@@ -45,7 +65,7 @@ namespace Endeksa.Controllers
         public ActionResult<UserLocation> GetIP()
         {
             // _rabbitmqClientService.Connect();
-            
+
             //kullanıcının ip adresi alınır.
             string ip = GetUserIP();
             //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
@@ -55,11 +75,11 @@ namespace Endeksa.Controllers
             //    _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
             //}
             // _logger.LogInformation("ip adresi cachte bulundu.");
-            
+
 
             //metot içerisinde önce get ile redisten ip adresini al ondan sonra gönderilen ip ile gelen ip adresini karşılaştır.
 
-            if (!_redisService.isKeyExist(RedisService.IpKey))
+            if (!_redisService.isKeyExist(RedisService.IpKey, ip))
             {
                 _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
             }
@@ -76,15 +96,15 @@ namespace Endeksa.Controllers
             {
                 //IP adresi için api çağrısı yapılır.
                 string apiUrl = "http://api.ipstack.com/check?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
-                var json = new WebClient().DownloadString( apiUrl );
-                var data = JObject.Parse( json );
+                var json = new WebClient().DownloadString(apiUrl);
+                var data = JObject.Parse(json);
 
                 //IP adresi alınır
                 ip = data["ip"].ToString();
             }
             catch (Exception ex)
             {
-                Console.WriteLine( ex.Message );
+                Console.WriteLine(ex.Message);
             }
 
             return ip;
@@ -101,8 +121,8 @@ namespace Endeksa.Controllers
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
                 string apiUrl = $"http://api.ipstack.com/{ip}?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
-                var json = new WebClient().DownloadString( apiUrl );
-                var data = JObject.Parse( json );
+                var json = new WebClient().DownloadString(apiUrl);
+                var data = JObject.Parse(json);
 
                 //Şehir ve ülke bilgileri alınır
                 string city = data["city"].ToString();
