@@ -1,12 +1,16 @@
-﻿using Endeksa.Models;
+﻿using Endeksa.BackgroundServices;
+using Endeksa.Models;
 using Endeksa.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Endeksa.Controllers
 {
@@ -16,15 +20,20 @@ namespace Endeksa.Controllers
     {
         private readonly RabbitMQClientService _rabbitmqClientService;
         private readonly RabbitMQPublisher _rabbitMQPublisher;
-
-        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher)
+        private readonly RedisService _redisService;
+        //private readonly IDatabase _cache;
+        private readonly ILogger<ClientInfoController> _logger;
+        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher, RedisService redisService, ILogger<ClientInfoController> logger)
         {
             _rabbitmqClientService = rabbitmqClientService;
             _rabbitMQPublisher = rabbitMQPublisher;
+            // _cache = _redisService.GetDb(1);
+            _redisService = redisService;
+           _logger = logger;
         }
 
         [HttpGet]
-        
+        /*swagger error
         //[Authorize]
         //[SwaggerOperation(
         //    Summary = "Get User IP and location",
@@ -32,7 +41,7 @@ namespace Endeksa.Controllers
         //    OperationId = "GetUserAndLocation",
         //    Tags = new[] {"IP"}
         //    )]
-        
+        */
         public ActionResult<UserLocation> GetIP()
         {
             // _rabbitmqClientService.Connect();
@@ -41,8 +50,19 @@ namespace Endeksa.Controllers
             string ip = GetUserIP();
             //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
             string location = GetLocation(ip);
+            //if (await _cache.KeyExistsAsync(RedisService.IpKey))
+            //{
+            //    _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+            //}
+            // _logger.LogInformation("ip adresi cachte bulundu.");
+            
 
-            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+            //metot içerisinde önce get ile redisten ip adresini al ondan sonra gönderilen ip ile gelen ip adresini karşılaştır.
+
+            if (!_redisService.isKeyExist(RedisService.IpKey))
+            {
+                _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+            }
             return Ok(new UserLocation { IP = ip, Location = location });
         }
         /// <summary>
@@ -55,7 +75,7 @@ namespace Endeksa.Controllers
             try
             {
                 //IP adresi için api çağrısı yapılır.
-                string apiUrl = "http://api.ipstack.com/check?access_key=7224d0a4e08f10c5fe9401c8b7c5a947\r\n";
+                string apiUrl = "http://api.ipstack.com/check?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
                 var json = new WebClient().DownloadString( apiUrl );
                 var data = JObject.Parse( json );
 
@@ -80,7 +100,7 @@ namespace Endeksa.Controllers
             try
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
-                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=7224d0a4e08f10c5fe9401c8b7c5a947\r\n";
+                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
                 var json = new WebClient().DownloadString( apiUrl );
                 var data = JObject.Parse( json );
 

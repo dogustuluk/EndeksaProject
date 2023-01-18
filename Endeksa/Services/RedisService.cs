@@ -9,6 +9,8 @@ namespace Endeksa.Services
 {
     public class RedisService
     {
+        public const string IpKey = "adres";
+        public string hashKey { get; set; } = "IpNCity";
         private readonly string _redisHost;
         private readonly string _redisPort;
         private ConnectionMultiplexer _redis;
@@ -26,6 +28,7 @@ namespace Endeksa.Services
         {
             var configString = $"{_redisHost}:{_redisPort}";
 
+           // _redis = ConnectionMultiplexer.Connect("localhost:6379");
             _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             db = _redis.GetDatabase();
             _logger.LogInformation("redis ile bağlantı kuruldu.");
@@ -44,8 +47,19 @@ namespace Endeksa.Services
 
         public bool SetData<T>(string key, T value)
         {
-           // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
-            return db.StringSet(key, JsonSerializer.Serialize(value));
+            // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
+            return db.HashSet(hashKey, key, JsonSerializer.Serialize(value));
+            //return db.StringSet(key, JsonSerializer.Serialize(value));
+        }
+        public bool isKeyExist(string hashkey)
+        {
+            //var data = db.StringGet(value);
+            if (db.KeyExists(hashKey))
+            {
+                _logger.LogInformation($"data cache içerisinde bulunmaktadır");
+                return true;
+            }
+            return false;
         }
     }
 }

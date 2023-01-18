@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +37,13 @@ namespace Endeksa
             services.AddSingleton<RabbitMQClientService>();
             services.AddSingleton<RabbitMQPublisher>();
             services.AddHostedService<IPDetectorBackgroundService>();
-           // services.AddSingleton<IRedisService,RedisService>();
-           // services.AddStackExchangeRedisCache<RedisService>();
+            // services.AddSingleton<IRedisService,RedisService>();
+            // services.AddStackExchangeRedisCache<RedisService>();
+            services.AddSingleton<IDatabase>(sp =>
+            {
+                var redisService = sp.GetRequiredService<RedisService>();
+                return redisService.GetDb(0);
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
