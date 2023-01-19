@@ -77,14 +77,20 @@ namespace Endeksa.Controllers
             // _logger.LogInformation("ip adresi cachte bulundu.");
 
 
-            //metot içerisinde önce get ile redisten ip adresini al ondan sonra gönderilen ip ile gelen ip adresini karşılaştır.
-
             if (!_redisService.isKeyExist(RedisService.IpKey, ip))
             {
                 _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
             }
             return Ok(new UserLocation { IP = ip, Location = location });
+
+
+
         }
+
+
+
+
+
         /// <summary>
         /// Gelen isteğin IP adresini api'ye bağlanarak bulan method. Json formatında bir değer alır ve geriye string türünde değer döndürür. Gelen değer GetIP metodunda çalıştırılır.
         /// </summary>
@@ -95,7 +101,7 @@ namespace Endeksa.Controllers
             try
             {
                 //IP adresi için api çağrısı yapılır.
-                string apiUrl = "http://api.ipstack.com/check?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
+                string apiUrl = "http://api.ipstack.com/check?access_key=b7e07c5a7903455ef2102e603de7f9a0\r\n";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 
@@ -120,7 +126,7 @@ namespace Endeksa.Controllers
             try
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
-                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=4514fa9e4e267c19febbb4a54b901e43\r\n";
+                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=b7e07c5a7903455ef2102e603de7f9a0\r\n";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 

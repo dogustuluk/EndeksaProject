@@ -1,5 +1,6 @@
 using Endeksa.BackgroundServices;
 using Endeksa.Services;
+using Endeksa.Services.Extension;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,20 +31,23 @@ namespace Endeksa
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<RedisService>();
+            //services.AddSingleton<RedisService>();
 
             services.AddSingleton(serviceProvider => new ConnectionFactory { Uri = new Uri(Configuration.GetConnectionString("RabbitMQ")), DispatchConsumersAsync= true });
-       
-            services.AddSingleton<RabbitMQClientService>();
-            services.AddSingleton<RabbitMQPublisher>();
-            services.AddHostedService<IPDetectorBackgroundService>();
-            // services.AddSingleton<IRedisService,RedisService>();
-            // services.AddStackExchangeRedisCache<RedisService>();
-            services.AddSingleton<IDatabase>(sp =>
-            {
-                var redisService = sp.GetRequiredService<RedisService>();
-                return redisService.GetDb(0);
-            });
+
+            /*services
+            //services.AddSingleton<RabbitMQClientService>();
+            //services.AddSingleton<RabbitMQPublisher>();
+            //services.AddHostedService<IPDetectorBackgroundService>();
+            //// services.AddSingleton<IRedisService,RedisService>();
+            //// services.AddStackExchangeRedisCache<RedisService>();
+            //services.AddSingleton<IDatabase>(sp =>
+            //{
+            //    var redisService = sp.GetRequiredService<RedisService>();
+            //    return redisService.GetDb(0);
+            //});
+            */
+            services.LoadMyServices();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
