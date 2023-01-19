@@ -10,7 +10,7 @@ namespace Endeksa.Services
 {
     public class RedisService
     {
-        public const string IpKey = "adres";
+        public const string IpKey = "";
         public string hashKey { get; set; } = "IpNCity";
         private readonly string _redisHost;
         private readonly string _redisPort;
@@ -23,6 +23,7 @@ namespace Endeksa.Services
             _redisHost = configuration["Redis:Host"];
             _redisHost = configuration["Redis:Port"];
             _logger = logger;
+            
         }
 
         public void Connect()
@@ -50,18 +51,32 @@ namespace Endeksa.Services
             return value;
         }
 
-        public bool SetData<T>(string key, T value)
+        public bool SetData<T>(string key,string city ,T value)
         {
+            key = JsonSerializer.Serialize(value);
             // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
-            return db.HashSet(hashKey, key, JsonSerializer.Serialize(value));
+            return db.HashSet(key,JsonSerializer.Serialize(value),city);
             //return db.StringSet(key, JsonSerializer.Serialize(value));
         }
-        public bool isKeyExist(string hashkey,string value)
+        public bool isKeyExist(string hashkey)
         {
             //var data = db.StringGet(value);
+            
+           // var data = db.HashGet(hashkey, value);
+            
+            //if (data.HasValue.ToString() == JsonSerializer.Serialize(value))
+            //{
+            //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
+            //    return true;
+            //}
+            //if (db.HashExists(hashkey,value))
+            //{
+            //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
+            //    return true;
+            //}
             if (db.KeyExists(hashKey))
             {
-                _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
+                _logger.LogInformation($"data cache içerisinde bulunmaktadır:{hashkey} - thread:{Thread.CurrentThread.ManagedThreadId}");
                 return true;
             }
             return false;

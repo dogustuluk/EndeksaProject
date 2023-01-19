@@ -55,7 +55,7 @@ namespace Endeksa.BackgroundServices
                 //redis
               //  var expiryTime = DateTimeOffset.Now.AddSeconds(30);
                 //_redisService.Connect();
-                _redisService.SetData<string>(RedisService.IpKey, ip);
+                _redisService.SetData<string>(ip,city, ip);
                 _logger.LogInformation("Redise ip adresi kaydedildi.");
             }
             catch (Exception ex)
