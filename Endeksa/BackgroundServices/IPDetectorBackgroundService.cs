@@ -54,8 +54,7 @@ namespace Endeksa.BackgroundServices
                 _logger.LogInformation($"işlem tamamlandı. IP:{ip} - City:{city} - thread:{Thread.CurrentThread.ManagedThreadId}");
                 //redis
               //  var expiryTime = DateTimeOffset.Now.AddSeconds(30);
-                //_redisService.Connect();
-                _redisService.SetData<string>(ip,city, ip);
+                _redisService.SetData<string>(ip,city,ip);
                 _logger.LogInformation("Redise ip adresi kaydedildi.");
             }
             catch (Exception ex)

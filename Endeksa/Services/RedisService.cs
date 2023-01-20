@@ -23,47 +23,37 @@ namespace Endeksa.Services
             _redisHost = configuration["Redis:Host"];
             _redisHost = configuration["Redis:Port"];
             _logger = logger;
-            
+
         }
 
         public void Connect()
         {
             var configString = $"{_redisHost}:{_redisPort}";
 
-           // _redis = ConnectionMultiplexer.Connect("localhost:6379");
+            // _redis = ConnectionMultiplexer.Connect("localhost:6379");
             _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             db = _redis.GetDatabase();
-            _logger.LogInformation("redis ile bağlantı kuruldu. thread:"+ Thread.CurrentThread.ManagedThreadId);
+            _logger.LogInformation("redis ile bağlantı kuruldu. thread:" + Thread.CurrentThread.ManagedThreadId);
         }
         public IDatabase GetDb(int db)
         {
             return _redis.GetDatabase(db);
         }
 
-        public T GetIP<T>(string ip)
+        public bool SetData<T>(string key, string city, T value)
         {
-            var value = db.StringGet(ip);
-            throw new NotImplementedException();
-        }
-        public string GetIp(string ip)
-        {
-            var value = db.StringGet(ip);
-            return value;
-        }
-
-        public bool SetData<T>(string key,string city ,T value)
-        {
-            key = JsonSerializer.Serialize(value);
+            //key = JsonSerializer.Serialize(value);
             // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
-            return db.HashSet(key,JsonSerializer.Serialize(value),city);
-            //return db.StringSet(key, JsonSerializer.Serialize(value));
+            
+            return db.HashSet(hashKey, JsonSerializer.Serialize(value), city);
         }
-        public bool isKeyExist(string hashkey)
+        public bool isKeyExist(string value)
         {
+            /*
             //var data = db.StringGet(value);
-            
-           // var data = db.HashGet(hashkey, value);
-            
+
+            //var data = db.HashGet(hashkey, value);
+
             //if (data.HasValue.ToString() == JsonSerializer.Serialize(value))
             //{
             //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
@@ -74,12 +64,18 @@ namespace Endeksa.Services
             //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
             //    return true;
             //}
-            if (db.KeyExists(hashKey))
+            */
+            if (true)
             {
-                _logger.LogInformation($"data cache içerisinde bulunmaktadır:{hashkey} - thread:{Thread.CurrentThread.ManagedThreadId}");
-                return true;
+                if(value == db.HashGet(hashKey, value))
+                {
+
+                    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
+                    
+                }
+               _logger.LogInformation("data cachete yok.");
+                return false;
             }
-            return false;
         }
     }
 }

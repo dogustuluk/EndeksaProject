@@ -23,34 +23,14 @@ namespace Endeksa.Controllers
         private readonly RabbitMQClientService _rabbitmqClientService;
         private readonly RabbitMQPublisher _rabbitMQPublisher;
         private readonly RedisService _redisService;
-        private readonly IDatabase _cache;
         private readonly ILogger<ClientInfoController> _logger;
-        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher, RedisService redisService, ILogger<ClientInfoController> logger, IDatabase cache)
+        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher, RedisService redisService, ILogger<ClientInfoController> logger)
         {
             _rabbitmqClientService = rabbitmqClientService;
             _rabbitMQPublisher = rabbitMQPublisher;
-           // _cache = _redisService.GetDb(1);
             _redisService = redisService;
             _logger = logger;
-            _cache = cache;
-        }
-
-        [HttpGet]
-        public ActionResult<UserLocation> CheckIp()
-        {
-            string ip = GetUserIP();
-            string location = GetLocation(ip);
-
-            if (_redisService.db.HashExists(_redisService.hashKey,ip))
-            {
-                _logger.LogInformation($"ip adresi rediste var:{ip}");
-            }
-            else
-            {
-                _logger.LogInformation($"ip adresi rediste yok:{ip}");
-            }
-
-            return Ok(new UserLocation { IP = ip, Location = location });
+            
         }
 
         [HttpPost]
@@ -60,13 +40,11 @@ namespace Endeksa.Controllers
             string location = GetLocation(ip);
 
             // IP adresini Redis'te kaydet
-            if (!_redisService.isKeyExist(ip))
-            {
-                _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
-            }
+            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+
+
             return Ok(new UserLocation { IP = ip, Location = location });
 
-            return Ok();
         }
 
         [HttpGet]
@@ -87,23 +65,12 @@ namespace Endeksa.Controllers
             string ip = GetUserIP();
             //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
             string location = GetLocation(ip);
-            //if (await _cache.KeyExistsAsync(RedisService.IpKey))
-            //{
-            //    _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
-            //}
-            // _logger.LogInformation("ip adresi cachte bulundu.");
 
-            if (!_redisService.isKeyExist(ip))
-            {
-                _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
-            }
+            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+
             return Ok(new UserLocation { IP = ip, Location = location });
 
         }
-
-
-
-
 
         /// <summary>
         /// Gelen isteğin IP adresini api'ye bağlanarak bulan method. Json formatında bir değer alır ve geriye string türünde değer döndürür. Gelen değer GetIP metodunda çalıştırılır.
@@ -115,7 +82,7 @@ namespace Endeksa.Controllers
             try
             {
                 //IP adresi için api çağrısı yapılır.
-                string apiUrl = "http://api.ipstack.com/check?access_key=b13be0da105774096c8297334ba9b2ef\r\n";
+                string apiUrl = "http://api.ipstack.com/check?access_key=2e9fa1366885bd7fdcce4916fa6c81fe\r\n";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 
@@ -140,7 +107,7 @@ namespace Endeksa.Controllers
             try
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
-                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=b13be0da105774096c8297334ba9b2ef\r\n";
+                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=2e9fa1366885bd7fdcce4916fa6c81fe\r\n";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 
