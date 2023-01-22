@@ -24,16 +24,13 @@ namespace Endeksa.Controllers
         private readonly IRabbitMQPublisher _rabbitMQPublisher;
         private readonly IRedisService _redisService;
         private readonly IIpDetectorService _ipDetectorService;
-        private readonly IRabbitMQClientService _rabbitMQClientService;
-        private readonly ILogger<ClientInfoController> logger;
+        
 
-        public ClientInfoController(IRabbitMQPublisher rabbitMQPublisher, IRedisService redisService, IIpDetectorService ipDetectorService, IRabbitMQClientService rabbitMQClientService, ILogger<ClientInfoController> logger)
+        public ClientInfoController(IRabbitMQPublisher rabbitMQPublisher, IRedisService redisService, IIpDetectorService ipDetectorService)
         {
             _rabbitMQPublisher = rabbitMQPublisher;
             _redisService = redisService;
             _ipDetectorService = ipDetectorService;
-            _rabbitMQClientService = rabbitMQClientService;
-            this.logger = logger;
         }
 
         [HttpPost]

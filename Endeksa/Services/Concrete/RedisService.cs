@@ -24,7 +24,7 @@ namespace Endeksa.Services.Concrete
         public RedisService(IConfiguration configuration, ILogger<IRedisService> logger)
         {
             _redisHost = configuration["Redis:Host"];
-            _redisHost = configuration["Redis:Port"];
+            _redisPort = configuration["Redis:Port"];
             _logger = logger;
 
         }
@@ -32,7 +32,8 @@ namespace Endeksa.Services.Concrete
         public void Connect()
         {
             var configString = $"{_redisHost}:{_redisPort}";
-            _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
+            //_redis = ConnectionMultiplexer.Connect("localhost:6379");
+            _redis = ConnectionMultiplexer.Connect(configString);
             db = _redis.GetDatabase();
             _logger.LogInformation("redis ile bağlantı kuruldu. thread:" + Thread.CurrentThread.ManagedThreadId);
         }
@@ -43,7 +44,6 @@ namespace Endeksa.Services.Concrete
 
         public bool SetData<T>(string key, string city, T value)
         {
-            //key = JsonSerializer.Serialize(value);
             // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
 
             return db.HashSet(hashKey, System.Text.Json.JsonSerializer.Serialize(value), city);
