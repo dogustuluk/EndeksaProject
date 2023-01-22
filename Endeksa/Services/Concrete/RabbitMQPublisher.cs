@@ -4,13 +4,13 @@ using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace Endeksa.Services
+namespace Endeksa.Services.Concrete
 {
-    public class RabbitMQPublisher: IRabbitMQPublisher
+    public class RabbitMQPublisher : IRabbitMQPublisher
     {
-        private readonly RabbitMQClientService _rabbitMQClientService;
+        private readonly IRabbitMQClientService _rabbitMQClientService;
 
-        public RabbitMQPublisher(RabbitMQClientService rabbitMQClientService)
+        public RabbitMQPublisher(IRabbitMQClientService rabbitMQClientService)
         {
             _rabbitMQClientService = rabbitMQClientService;
         }

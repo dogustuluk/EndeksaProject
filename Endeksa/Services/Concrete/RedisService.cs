@@ -9,9 +9,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 
-namespace Endeksa.Services
+namespace Endeksa.Services.Concrete
 {
-    public class RedisService:IRedisService
+    public class RedisService : IRedisService
     {
         public const string IpKey = "";
         public string hashKey { get; set; } = "IpNCity";
@@ -19,9 +19,9 @@ namespace Endeksa.Services
         private readonly string _redisPort;
         private ConnectionMultiplexer _redis;
         public IDatabase db { get; set; }
-        private readonly ILogger<RedisService> _logger;
+        private readonly ILogger<IRedisService> _logger;
 
-        public RedisService(IConfiguration configuration, ILogger<RedisService> logger)
+        public RedisService(IConfiguration configuration, ILogger<IRedisService> logger)
         {
             _redisHost = configuration["Redis:Host"];
             _redisHost = configuration["Redis:Port"];
@@ -45,16 +45,16 @@ namespace Endeksa.Services
         {
             //key = JsonSerializer.Serialize(value);
             // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
-            
+
             return db.HashSet(hashKey, System.Text.Json.JsonSerializer.Serialize(value), city);
         }
         public string GetValue(string value)
         {
             var data = db.HashGet(hashKey, System.Text.Json.JsonSerializer.Serialize(value));
             string datas = JsonConvert.SerializeObject(data);
-            Byte[] values = Encoding.UTF8.GetBytes(datas);
+            byte[] values = Encoding.UTF8.GetBytes(datas);
             _logger.LogInformation($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
-           // Console.WriteLine($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
+            // Console.WriteLine($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
             return Utf8Json.JsonSerializer.Deserialize<string>(values);
         }
 

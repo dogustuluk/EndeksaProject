@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
 
-namespace Endeksa.Services
+namespace Endeksa.Services.Concrete
 {
     //background servisimiz ilgili kuyruğu dinleyip dataları alacak.consumer
     //
     //
-    public class RabbitMQClientService : IDisposable,IRabbitMQClientService
+    public class RabbitMQClientService : IDisposable, IRabbitMQClientService
     {
         private readonly ConnectionFactory _connectionFactory;
         private IConnection _connection;
@@ -26,11 +26,11 @@ namespace Endeksa.Services
         public IModel Connect()
         {
             _connection = _connectionFactory.CreateConnection();
-            if (_channel is { IsOpen:true })
+            if (_channel is { IsOpen: true })
             {
                 return _channel;
             }
-            
+
             _channel = _connection.CreateModel();
 
             _channel.ExchangeDeclare(ExchangeName, type: "direct", true, false);

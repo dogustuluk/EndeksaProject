@@ -1,5 +1,7 @@
 ﻿using Endeksa.Models;
-using Endeksa.Services;
+using Endeksa.Services.Abstract;
+using Endeksa.Services.Concrete;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -15,15 +17,21 @@ namespace Endeksa.BackgroundServices
 {
     public class IPDetectorBackgroundService : BackgroundService
     {
-        private readonly RabbitMQClientService _rabbitMQClientService;
+        private readonly IRabbitMQClientService _rabbitMQClientService;
         private readonly ILogger<IPDetectorBackgroundService> _logger;
         private IModel _channel;
-        private readonly RedisService _redisService;
-        public IPDetectorBackgroundService(ILogger<IPDetectorBackgroundService> logger, RabbitMQClientService rabbitMQClientService, RedisService redisService)
+        private readonly IRedisService _redisService;
+        public IPDetectorBackgroundService(ILogger<IPDetectorBackgroundService> logger, IRabbitMQClientService rabbitMQClientService, IRedisService redisService, IServiceScopeFactory factory)
         {
             _logger = logger;
             _rabbitMQClientService = rabbitMQClientService;
-           _redisService = redisService;
+            /*addscoped ->
+             * Eğer servisler scope olarak eklendiyse BackgroundService'ten miras alan sınıf için IServiceScopeFactory'yi constructor içerisine eklemeliyiz. İlgili sınıfta servis eklemesi yapacak isek alttaki gibi ekleme yapılarak scoped olarak eklenmiş olan servislerin yaşam döngüsünü burada kırıp, singleton olarak çalışmasını sağlar.
+           // _rabbitMQClientService = factory.CreateScope().ServiceProvider.GetRequiredService<IRabbitMQClientService>();
+           // _redisService = factory.CreateScope().ServiceProvider.GetRequiredService<IRedisService>();
+           */
+            _redisService = redisService;
+
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)

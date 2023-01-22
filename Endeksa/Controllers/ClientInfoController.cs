@@ -1,6 +1,7 @@
 ﻿using Endeksa.BackgroundServices;
 using Endeksa.Models;
 using Endeksa.Services;
+using Endeksa.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,18 +21,24 @@ namespace Endeksa.Controllers
     [ApiController]
     public class ClientInfoController : ControllerBase
     {
-        private readonly RabbitMQClientService _rabbitmqClientService;
-        private readonly RabbitMQPublisher _rabbitMQPublisher;
-        private readonly RedisService _redisService;
-        private readonly ILogger<ClientInfoController> _logger;
-        private readonly IpDetectorService _ipDetectorService;
-        public ClientInfoController(RabbitMQClientService rabbitmqClientService, RabbitMQPublisher rabbitMQPublisher, RedisService redisService, ILogger<ClientInfoController> logger, IpDetectorService ipDetectorService)
+        private readonly IRabbitMQPublisher _rabbitMQPublisher;
+        private readonly IRedisService _redisService;
+        private readonly IIpDetectorService _ipDetectorService;
+        private readonly IRabbitMQClientService _rabbitMQClientService;
+        private readonly ILogger<ClientInfoController> logger;
+        //-
+        //private readonly RabbitMQClientService _rabbitmqClientService;
+        //private readonly RabbitMQPublisher _rabbitMQPublisher;
+        //private readonly RedisService _redisService;
+        //private readonly ILogger<ClientInfoController> _logger;
+        //private readonly IpDetectorService _ipDetectorService;
+        public ClientInfoController(IRabbitMQPublisher rabbitMQPublisher, IRedisService redisService, IIpDetectorService ipDetectorService, IRabbitMQClientService rabbitMQClientService, ILogger<ClientInfoController> logger)
         {
-            _rabbitmqClientService = rabbitmqClientService;
             _rabbitMQPublisher = rabbitMQPublisher;
             _redisService = redisService;
-            _logger = logger;
             _ipDetectorService = ipDetectorService;
+            _rabbitMQClientService = rabbitMQClientService;
+            this.logger = logger;
         }
 
         [HttpPost]

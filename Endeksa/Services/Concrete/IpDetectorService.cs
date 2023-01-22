@@ -4,9 +4,9 @@ using System;
 using Endeksa.Services.Abstract;
 using System.Threading.Tasks;
 
-namespace Endeksa.Services
+namespace Endeksa.Services.Concrete
 {
-    public class IpDetectorService:IIpDetectorService
+    public class IpDetectorService : IIpDetectorService
     {
         /// <summary>
         /// Gelen isteğin IP adresini api'ye bağlanarak bulan method. Json formatında bir değer alır ve geriye string türünde değer döndürür. Gelen değer GetIP metodunda çalıştırılır.
