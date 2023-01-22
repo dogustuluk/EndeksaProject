@@ -32,7 +32,7 @@ namespace Endeksa.Services.Concrete
         public void Connect()
         {
             var configString = $"{_redisHost}:{_redisPort}";
-            //_redis = ConnectionMultiplexer.Connect("localhost:6379");
+           // _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             _redis = ConnectionMultiplexer.Connect(configString);
             db = _redis.GetDatabase();
             _logger.LogInformation("redis ile bağlantı kuruldu. thread:" + Thread.CurrentThread.ManagedThreadId);
