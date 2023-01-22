@@ -37,13 +37,17 @@ namespace Endeksa.Controllers
         public ActionResult AddIP(string ip)
         {
             // IP adresinin konumunu çek
-            string location = GetLocation(ip);
-
-            // IP adresini Redis'te kaydet
-            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
-
-
-            return Ok(new UserLocation { IP = ip, Location = location });
+            var location = _redisService.GetValue(ip);
+            bool redis = string.IsNullOrEmpty(location) == false;
+            
+            if (string.IsNullOrEmpty(location))
+            {
+                location = GetLocation(ip);
+                // IP adresini Redis'te kaydet
+                _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+            }
+            
+            return Ok(new UserLocation { IP = ip, Location = location, Message = redis ? "Mesaj redisten alındı" : "Mesaj Redise kaydedildi." });
 
         }
 

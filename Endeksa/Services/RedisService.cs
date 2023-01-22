@@ -1,8 +1,10 @@
 ﻿using Endeksa.BackgroundServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -45,37 +47,17 @@ namespace Endeksa.Services
             //key = JsonSerializer.Serialize(value);
             // var expirtyTime = expirationTime.DateTime.Subtract(DateTime.Now);
             
-            return db.HashSet(hashKey, JsonSerializer.Serialize(value), city);
+            return db.HashSet(hashKey, System.Text.Json.JsonSerializer.Serialize(value), city);
         }
-        public bool isKeyExist(string value)
+        public string GetValue(string value)
         {
-            /*
-            //var data = db.StringGet(value);
-
-            //var data = db.HashGet(hashkey, value);
-
-            //if (data.HasValue.ToString() == JsonSerializer.Serialize(value))
-            //{
-            //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
-            //    return true;
-            //}
-            //if (db.HashExists(hashkey,value))
-            //{
-            //    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
-            //    return true;
-            //}
-            */
-            if (true)
-            {
-                if(value == db.HashGet(hashKey, value))
-                {
-
-                    _logger.LogInformation($"data cache içerisinde bulunmaktadır:{value} - thread:{Thread.CurrentThread.ManagedThreadId}");
-                    
-                }
-               _logger.LogInformation("data cachete yok.");
-                return false;
-            }
+            var data = db.HashGet(hashKey, System.Text.Json.JsonSerializer.Serialize(value));
+            string datas = JsonConvert.SerializeObject(data);
+            //byte array'e al ve alttaki koda yolla
+            Byte[] values = Encoding.UTF8.GetBytes(datas);
+            _logger.LogInformation($"ip adresi cache'te bulundu. IP:{value} - City:{data}");
+            return Utf8Json.JsonSerializer.Deserialize<string>(values);
         }
+
     }
 }
