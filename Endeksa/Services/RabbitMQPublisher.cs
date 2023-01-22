@@ -1,10 +1,12 @@
-﻿using RabbitMQ.Client;
+﻿using Endeksa.Models;
+using Endeksa.Services.Abstract;
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
 namespace Endeksa.Services
 {
-    public class RabbitMQPublisher
+    public class RabbitMQPublisher: IRabbitMQPublisher
     {
         private readonly RabbitMQClientService _rabbitMQClientService;
 

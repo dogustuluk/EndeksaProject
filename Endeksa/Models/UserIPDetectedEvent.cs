@@ -1,4 +1,4 @@
-﻿namespace Endeksa.Services
+﻿namespace Endeksa.Models
 {
     public class UserIPDetectedEvent
     {//kontrol et

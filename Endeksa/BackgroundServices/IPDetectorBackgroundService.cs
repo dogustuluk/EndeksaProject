@@ -1,4 +1,5 @@
-﻿using Endeksa.Services;
+﻿using Endeksa.Models;
+using Endeksa.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

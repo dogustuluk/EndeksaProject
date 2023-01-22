@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Endeksa.Services.Abstract;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
 
@@ -7,7 +8,7 @@ namespace Endeksa.Services
     //background servisimiz ilgili kuyruğu dinleyip dataları alacak.consumer
     //
     //
-    public class RabbitMQClientService : IDisposable
+    public class RabbitMQClientService : IDisposable,IRabbitMQClientService
     {
         private readonly ConnectionFactory _connectionFactory;
         private IConnection _connection;

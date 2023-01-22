@@ -1,4 +1,5 @@
 ﻿using Endeksa.BackgroundServices;
+using Endeksa.Services.Abstract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -10,7 +11,7 @@ using System.Threading;
 
 namespace Endeksa.Services
 {
-    public class RedisService
+    public class RedisService:IRedisService
     {
         public const string IpKey = "";
         public string hashKey { get; set; } = "IpNCity";
@@ -31,8 +32,6 @@ namespace Endeksa.Services
         public void Connect()
         {
             var configString = $"{_redisHost}:{_redisPort}";
-
-            // _redis = ConnectionMultiplexer.Connect("localhost:6379");
             _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             db = _redis.GetDatabase();
             _logger.LogInformation("redis ile bağlantı kuruldu. thread:" + Thread.CurrentThread.ManagedThreadId);
@@ -53,9 +52,9 @@ namespace Endeksa.Services
         {
             var data = db.HashGet(hashKey, System.Text.Json.JsonSerializer.Serialize(value));
             string datas = JsonConvert.SerializeObject(data);
-            //byte array'e al ve alttaki koda yolla
             Byte[] values = Encoding.UTF8.GetBytes(datas);
-            _logger.LogInformation($"ip adresi cache'te bulundu. IP:{value} - City:{data}");
+            _logger.LogInformation($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
+           // Console.WriteLine($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
             return Utf8Json.JsonSerializer.Deserialize<string>(values);
         }
 

@@ -29,6 +29,7 @@ namespace Endeksa.Services.Extension
                 var redisService = sp.GetRequiredService<RedisService>();
                 return redisService.GetDb(0);
             });
+            servicesCollection.AddSingleton<IpDetectorService>();
 
             return servicesCollection;
         }
