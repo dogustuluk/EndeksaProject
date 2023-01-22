@@ -26,12 +26,7 @@ namespace Endeksa.Controllers
         private readonly IIpDetectorService _ipDetectorService;
         private readonly IRabbitMQClientService _rabbitMQClientService;
         private readonly ILogger<ClientInfoController> logger;
-        //-
-        //private readonly RabbitMQClientService _rabbitmqClientService;
-        //private readonly RabbitMQPublisher _rabbitMQPublisher;
-        //private readonly RedisService _redisService;
-        //private readonly ILogger<ClientInfoController> _logger;
-        //private readonly IpDetectorService _ipDetectorService;
+
         public ClientInfoController(IRabbitMQPublisher rabbitMQPublisher, IRedisService redisService, IIpDetectorService ipDetectorService, IRabbitMQClientService rabbitMQClientService, ILogger<ClientInfoController> logger)
         {
             _rabbitMQPublisher = rabbitMQPublisher;
@@ -44,7 +39,7 @@ namespace Endeksa.Controllers
         [HttpPost]
         public ActionResult AddIP(string ip)
         {
-            // IP adresinin konumunu çek
+            // ip'den şehir bilgisi gelir
             var location = _redisService.GetValue(ip);
             bool redis = string.IsNullOrEmpty(location) == false;
             
@@ -70,16 +65,15 @@ namespace Endeksa.Controllers
         */
         public ActionResult<UserLocation> GetIP()
         {
-            // _rabbitmqClientService.Connect();
-
-            //kullanıcının ip adresi alınır.
             string ip = _ipDetectorService.GetUserIP();
-            //IP adresinin kullanılarak istekte bulunan kullanıcının konum bilgileri alınır.
-            string location = _ipDetectorService.GetLocation(ip);
-
-            _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
-
-            return Ok(new UserLocation { IP = ip, Location = location });
+            string location = _redisService.GetValue(ip);
+            bool redis = string.IsNullOrEmpty (location) == false;
+            if (string.IsNullOrEmpty(location))
+            {
+                location = _ipDetectorService.GetLocation(ip);
+                _rabbitMQPublisher.Publish(new UserIPDetectedEvent() { IP = ip, City = location });
+            }
+            return Ok(new UserLocation { IP = ip, Location = location, Message = redis ? "Mesaj redisten alındı" : "Mesaj Redise kaydedildi." });
 
         }
     }

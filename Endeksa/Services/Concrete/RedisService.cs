@@ -48,10 +48,17 @@ namespace Endeksa.Services.Concrete
 
             return db.HashSet(hashKey, System.Text.Json.JsonSerializer.Serialize(value), city);
         }
+        /// <summary>
+        /// Kullanıcının ip'sinden şehir bilgisini redisten çekip, byte dizisine dönüştürür ve geri döner.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public string GetValue(string value)
         {
+            //city name
             var data = db.HashGet(hashKey, System.Text.Json.JsonSerializer.Serialize(value));
             string datas = JsonConvert.SerializeObject(data);
+            //city name by byte
             byte[] values = Encoding.UTF8.GetBytes(datas);
             _logger.LogInformation($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
             // Console.WriteLine($"ip adresi cache'te bulundu. IP:{value} - City:{datas}");
