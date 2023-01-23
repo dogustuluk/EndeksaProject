@@ -8,6 +8,8 @@ namespace Endeksa.Services.Concrete
 {
     public class IpDetectorService : IIpDetectorService
     {
+        private const string API_URL = "http://api.ipstack.com/";
+        private const string API_KEY = "7ce20d99b72388966043b533e6e738c6";
         /// <summary>
         /// Gelen isteğin IP adresini api'ye bağlanarak bulan method. Json formatında bir değer alır ve geriye string türünde değer döndürür. Gelen değer GetIP metodunda çalıştırılır.
         /// </summary>
@@ -18,7 +20,7 @@ namespace Endeksa.Services.Concrete
             try
             {
                 //IP adresi için api çağrısı yapılır.
-                string apiUrl = "http://api.ipstack.com/check?access_key=2e9fa1366885bd7fdcce4916fa6c81fe\r\n";
+                string apiUrl = $"{API_URL}check?access_key={API_KEY}";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 
@@ -43,7 +45,7 @@ namespace Endeksa.Services.Concrete
             try
             {
                 //Konum bilgilerinin ip adresi kullanılarak gelmesi için api çağrısı yapılır.
-                string apiUrl = $"http://api.ipstack.com/{ip}?access_key=2e9fa1366885bd7fdcce4916fa6c81fe\r\n";
+                string apiUrl = $"{API_URL}{ip}?access_key={API_KEY}";
                 var json = new WebClient().DownloadString(apiUrl);
                 var data = JObject.Parse(json);
 
