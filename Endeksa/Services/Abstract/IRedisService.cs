@@ -4,9 +4,9 @@ namespace Endeksa.Services.Abstract
 {
     public interface IRedisService
     {
-        public void Connect();
-        public IDatabase GetDb(int db);
-        public bool SetData<T>(string key, string city, T value);
-        public string GetValue(string value);
+        void Connect();
+        IDatabase GetDb(int db);
+        bool SetData<T>(string key, string city, T value);
+        string GetValue(string value);
     }
 }

@@ -4,7 +4,7 @@ namespace Endeksa.Services.Abstract
 {
     public interface IRabbitMQClientService
     {
-        public IModel Connect();
-        public void Dispose();
+        IModel Connect();
+        void Dispose();
     }
 }

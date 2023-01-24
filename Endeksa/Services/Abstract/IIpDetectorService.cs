@@ -4,7 +4,7 @@ namespace Endeksa.Services.Abstract
 {
     public interface IIpDetectorService
     {
-        public string GetUserIP();
-        public string GetLocation(string ip);
+        string GetUserIP();
+        string GetLocation(string ip);
     }
 }
